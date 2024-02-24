@@ -222,9 +222,28 @@ module.exports = function appSocket(socket) {
       const { ssh } = socket.request.session;
       ssh.username = socket.request.session.username;
       ssh.password = socket.request.session.userpassword;
+      // ljc start
+      if (socket.request.session.useKey){
+        ssh.privateKey = require('./config').user.privatekey;	
+        ssh.passphrase = ssh.password;
+        ssh.password = undefined;
+      }	  
+      // ljc end
       ssh.tryKeyboard = true;
       ssh.debug = debug('ssh2');
-      conn.connect(ssh);
+      // ljc start
+      //conn.connect(ssh);
+      try{
+        conn.connect(ssh);
+      }catch(ex){
+        console.error(ex);
+        socket.emit('allowreauth', socket.request.session.ssh.allowreauth);
+        socket.emit('reauth');
+        socket.emit('ssherror', 'connect ERROR:' + ex.message)
+        socket.request.session.destroy()
+        socket.disconnect(true)
+      }
+      // ljc end
     } else {
       webssh2debug(
         socket,

@@ -57,6 +57,13 @@ exports.connect = function connect(req, res) {
     req.session.username = req.body.username;
     req.session.userpassword = req.body.userpassword;
 
+    // ljc start
+	req.session.useKey = (req.body.useKey && validator.isBoolean(`${req.body.useKey}`))? parseBool(req.body.useKey) : false;
+
+    if (req.body.host)
+      host = req.body.host
+    // ljc end
+
     if (req.body.port && validator.isInt(`${req.body.port}`, { min: 1, max: 65535 }))
       port = req.body.port;
 
@@ -101,6 +108,13 @@ exports.connect = function connect(req, res) {
   }
 
   if (req.method === 'GET') {
+    // ljc start
+	req.session.useKey = (req.query?.useKey && validator.isBoolean(`${req.query.useKey}`))? parseBool(req.query.useKey) : false;
+
+    if (req.query?.host)
+      host = req.body.host
+    // ljc end
+
     if (req.query?.port && validator.isInt(`${req.query.port}`, { min: 1, max: 65535 }))
       port = req.query.port;
 
